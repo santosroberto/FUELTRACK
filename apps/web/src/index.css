@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 84% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 160 84% 39%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222 84% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 84% 7%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 84% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 84% 5%;
+    --secondary: 161 94% 30%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 224 76% 48%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer components {
+  .badge-confirmado {
+    @apply inline-flex items-center gap-1 rounded-full border border-green-300 bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800;
+  }
+  .badge-pendente {
+    @apply inline-flex items-center gap-1 rounded-full border border-yellow-300 bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800;
+  }
+  .badge-suspeito {
+    @apply inline-flex items-center gap-1 rounded-full border border-red-300 bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800;
+  }
+  .badge-rejeitado {
+    @apply inline-flex items-center gap-1 rounded-full border border-gray-300 bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600;
+  }
+
+  .dark .badge-confirmado {
+    @apply border-green-700 bg-green-900/30 text-green-400;
+  }
+  .dark .badge-pendente {
+    @apply border-yellow-700 bg-yellow-900/30 text-yellow-400;
+  }
+  .dark .badge-suspeito {
+    @apply border-red-700 bg-red-900/30 text-red-400;
+  }
+  .dark .badge-rejeitado {
+    @apply border-gray-600 bg-gray-800 text-gray-400;
+  }
+
+  .badge-dot {
+    @apply inline-block h-1.5 w-1.5 rounded-full;
+  }
+  .badge-dot-confirmado { @apply bg-green-500; }
+  .badge-dot-pendente   { @apply bg-yellow-500; }
+  .badge-dot-suspeito   { @apply bg-red-500; }
+  .badge-dot-rejeitado  { @apply bg-gray-400; }
+
+  .kpi-card {
+    @apply rounded-lg border bg-card p-4 shadow-sm transition-all hover:shadow-md md:p-6;
+  }
+  .kpi-value {
+    @apply mt-2 text-3xl font-bold tracking-tight;
+  }
+  .kpi-label {
+    @apply text-sm text-muted-foreground;
+  }
+  .kpi-trend-up {
+    @apply inline-flex items-center gap-1 text-xs font-medium text-green-600;
+  }
+  .kpi-trend-down {
+    @apply inline-flex items-center gap-1 text-xs font-medium text-red-600;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-muted-foreground/20;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media print {
+    .no-print { display: none; }
+    .print-only { display: block; }
+    body { background: white; }
+  }
+}
