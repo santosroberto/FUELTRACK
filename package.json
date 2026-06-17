@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "cd apps/web && npm run dev",
     "build": "cd apps/web && npm run build",
-    "preview": "cd apps/web && npm run preview",
-    "lint": "cd apps/web && npm run lint",
-    "typecheck": "cd apps/web && npm run typecheck"
+    "preview": "cd apps/web && npm run preview"
   }
 }
