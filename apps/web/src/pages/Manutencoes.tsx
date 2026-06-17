@@ -22,7 +22,7 @@ import { LoadingSkeleton } from '@/components/shared/loading-skeleton'
 import { useAuth } from '@/providers/auth-provider'
 import { fetchManutencoes, fetchVeiculos, createManutencao, updateManutencao, deleteManutencao, type ManutencaoDB, type VeiculoDB } from '@/lib/supabase/queries'
 import { toast } from 'sonner'
-import { Plus, Wrench, MoreHorizontal, Pencil, Trash2, Search, Calendar, Gauge, DollarSign, Building2, Loader2 } from 'lucide-react'
+import { Plus, Wrench, MoreHorizontal, Pencil, Trash2, Search, Calendar, Loader2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 
 const statusLabel: Record<string, string> = {
@@ -142,7 +142,6 @@ export function Manutencoes() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     Promise.all([fetchManutencoes(user.id), fetchVeiculos(user.id)])
       .then(([m, v]) => { setManutencoes(m); setVeiculos(v) })
       .catch(() => toast.error('Erro ao carregar dados'))

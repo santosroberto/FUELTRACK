@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -15,7 +14,7 @@ import { BarGastoVeiculo } from '@/components/charts/bar-gasto-veiculo'
 import { LoadingSkeleton } from '@/components/shared/loading-skeleton'
 import { useAuth } from '@/providers/auth-provider'
 import { fetchAbastecimentos, fetchManutencoes } from '@/lib/supabase/queries'
-import { Search, CreditCard, Fuel, Wrench, Package, TrendingUp, TrendingDown, MoreHorizontal } from 'lucide-react'
+import { Search, CreditCard, Fuel, Wrench } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -39,7 +38,6 @@ export function Despesas() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     Promise.all([fetchAbastecimentos(user.id), fetchManutencoes(user.id)])
       .then(([abastecimentos, manutencoes]) => {
         const items: DespesaItem[] = [
@@ -47,8 +45,8 @@ export function Despesas() {
             id: `comb-${a.id}`,
             data: new Date(a.data_hora).toLocaleDateString('pt-BR'),
             tipo: 'combustivel' as const,
-            descricao: (a as any).postos?.nome ?? a.posto_nome ?? 'Posto',
-            veiculo: (a as any).veiculos?.placa ?? '-',
+            descricao: a.postos?.nome ?? a.posto_nome ?? 'Posto',
+            veiculo: a.veiculos?.placa ?? '-',
             valor: a.valor_total,
             categoria_label: 'Combustível',
             status: a.status as 'confirmado' | 'pendente' | 'suspeito',
@@ -58,7 +56,7 @@ export function Despesas() {
             data: m.data_agendada ? new Date(m.data_agendada).toLocaleDateString('pt-BR') : '-',
             tipo: 'manutencao' as const,
             descricao: m.descricao ?? m.tipo,
-            veiculo: (m as any).veiculos?.placa ?? '-',
+            veiculo: m.veiculos?.placa ?? '-',
             valor: m.valor ?? 0,
             categoria_label: 'Manutenção',
           })),

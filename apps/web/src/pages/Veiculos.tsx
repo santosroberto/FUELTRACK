@@ -16,15 +16,12 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Separator } from '@/components/ui/separator'
-import { BadgeStatus } from '@/components/shared/badge-status'
 import { EmptyState } from '@/components/shared/empty-state'
 import { LoadingSkeleton } from '@/components/shared/loading-skeleton'
 import { useAuth } from '@/providers/auth-provider'
 import { fetchVeiculos, createVeiculo, updateVeiculo, type VeiculoDB } from '@/lib/supabase/queries'
-import { supabase } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, Truck, Eye, Fuel, Loader2 } from 'lucide-react'
+import { Plus, Search, MoreHorizontal, Pencil, Trash2, Truck, Eye, Loader2 } from 'lucide-react'
 
 const combustivelLabel: Record<string, string> = {
   diesel_s10: 'Diesel S10', diesel_s500: 'Diesel S500', gasolina_comum: 'Gasolina Comum',
@@ -126,7 +123,6 @@ export function Veiculos() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     fetchVeiculos(user.id).then(setVeiculos).catch(() => toast.error('Erro ao carregar veículos'))
     .finally(() => setLoading(false))
   }, [user])

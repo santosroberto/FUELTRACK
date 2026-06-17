@@ -42,9 +42,33 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-  deploy:
+  lint:
     runs-on: ubuntu-latest
     needs: build
+    defaults:
+      run:
+        working-directory: ./apps/web
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalação do Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: ./apps/web/package-lock.json
+
+      - name: Instalação das dependências
+        run: npm install
+
+      - name: Rodar lint
+        run: npm run lint
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: lint
 
     steps:
       - name: Checkout do código

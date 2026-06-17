@@ -99,7 +99,6 @@ export function Motoristas() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     fetchMotoristas(user.id).then(setMotoristas).catch(() => toast.error('Erro ao carregar motoristas'))
     .finally(() => setLoading(false))
   }, [user])

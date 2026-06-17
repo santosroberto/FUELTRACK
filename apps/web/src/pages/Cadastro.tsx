@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -33,7 +33,6 @@ type Step1Data = z.infer<typeof step1Schema>
 type Step2Data = z.infer<typeof step2Schema>
 
 export function Cadastro() {
-  const navigate = useNavigate()
   const [step, setStep] = useState<Step>(1)
   const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
   const [frotaRange, setFrotaRange] = useState('')

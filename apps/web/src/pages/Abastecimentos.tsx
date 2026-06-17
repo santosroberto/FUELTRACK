@@ -25,7 +25,7 @@ import { fetchAbastecimentos, createAbastecimento, fetchVeiculos, fetchMotorista
 import type { AbastecimentoDB } from '@/lib/supabase/queries'
 import { toast } from 'sonner'
 import {
-  Plus, Search, MoreHorizontal, Fuel, FileDown, Camera, MapPin, Ban, ImageIcon, Pencil, Loader2, X,
+  Plus, Search, MoreHorizontal, Fuel, Camera, MapPin, ImageIcon, Loader2, X,
 } from 'lucide-react'
 import { formatCurrency, formatNumber } from '@/lib/utils'
 
@@ -50,7 +50,6 @@ function NovoAbastecimentoForm({ onClose, veiculos, motoristas }: {
   const [postoNome, setPostoNome] = useState('')
   const [pagamento, setPagamento] = useState('')
   const [obs, setObs] = useState('')
-  const [foto, setFoto] = useState<File | null>(null)
   const [fotoPreview, setFotoPreview] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -60,14 +59,13 @@ function NovoAbastecimentoForm({ onClose, veiculos, motoristas }: {
   function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
-      setFoto(file)
       const reader = new FileReader()
       reader.onloadend = () => setFotoPreview(reader.result as string)
       reader.readAsDataURL(file)
     }
   }
 
-  function removeFoto() { setFoto(null); setFotoPreview(null); if (fileInputRef.current) fileInputRef.current.value = '' }
+  function removeFoto() { setFotoPreview(null); if (fileInputRef.current) fileInputRef.current.value = '' }
 
   async function handleSubmit() {
     if (!user) return
@@ -208,7 +206,6 @@ export function Abastecimentos() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     Promise.all([fetchAbastecimentos(user.id), fetchVeiculos(user.id), fetchMotoristas(user.id)])
       .then(([a, v, m]) => { setAbastecimentos(a); setVeiculos(v); setMotoristas(m) })
       .catch(() => toast.error('Erro ao carregar dados'))

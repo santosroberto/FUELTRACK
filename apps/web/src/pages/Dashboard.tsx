@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BadgeStatus } from '@/components/shared/badge-status'
 import { LoadingSkeleton } from '@/components/shared/loading-skeleton'
 import { useAuth } from '@/providers/auth-provider'
-import { fetchAbastecimentos, fetchVeiculos, fetchAlertas, fetchManutencoes } from '@/lib/supabase/queries'
+import { fetchAbastecimentos, fetchVeiculos, fetchAlertas } from '@/lib/supabase/queries'
 import { DollarSign, Beaker, Fuel, MapPin } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 
@@ -20,12 +20,11 @@ export function Dashboard() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     Promise.all([
       fetchAbastecimentos(user.id),
       fetchVeiculos(user.id),
       fetchAlertas(user.id),
-    ]).then(([abastecimentos, veiculos, alertas]) => {
+    ]).then(([abastecimentos, , alertas]) => {
       const gastoTotal = abastecimentos.reduce((a, b) => a + b.valor_total, 0)
       const totalLitros = abastecimentos.reduce((a, b) => a + b.litros, 0)
       const kmRodados = abastecimentos.reduce((a, b) => a + b.km_atual, 0)
@@ -45,7 +44,7 @@ export function Dashboard() {
       const consumoPorVeiculo: Record<string, { total: number; count: number }> = {}
       abastecimentos.forEach((a) => {
         if (!a.km_l) return
-        const placa = (a as any).veiculos?.placa ?? a.veiculo_id
+        const placa = a.veiculos?.placa ?? a.veiculo_id
         if (!consumoPorVeiculo[placa]) consumoPorVeiculo[placa] = { total: 0, count: 0 }
         consumoPorVeiculo[placa].total += a.km_l
         consumoPorVeiculo[placa].count += 1

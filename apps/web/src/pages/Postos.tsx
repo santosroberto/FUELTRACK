@@ -82,7 +82,6 @@ export function Postos() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     fetchPostos(user.id).then(setPostos).catch(() => toast.error('Erro ao carregar postos'))
     .finally(() => setLoading(false))
   }, [user])

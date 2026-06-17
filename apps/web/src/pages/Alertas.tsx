@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { AlertTriangle, AlertCircle, Info, Skull, Search, Eye, EyeOff, Trash2, Loader2 } from 'lucide-react'
+import { AlertTriangle, AlertCircle, Info, Skull, Search, Eye, EyeOff, Trash2 } from 'lucide-react'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
@@ -31,7 +31,6 @@ export function Alertas() {
 
   useEffect(() => {
     if (!user) return
-    setLoading(true)
     fetchAlertas(user.id).then(setAlertas).catch(() => toast.error('Erro ao carregar alertas'))
     .finally(() => setLoading(false))
   }, [user])
