@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, Pencil, Search, Trash2, Phone, Mail, UserCheck } from 'lucide-react'
+import { Plus, Pencil, Search, Trash2, UserCheck, Loader2 } from 'lucide-react'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
@@ -14,24 +14,10 @@ import {
 } from '@/components/ui/select'
 import { BadgeStatus } from '@/components/shared/badge-status'
 import { EmptyState } from '@/components/shared/empty-state'
+import { LoadingSkeleton } from '@/components/shared/loading-skeleton'
 import { useAuth } from '@/providers/auth-provider'
-
-interface Motorista {
-  id: string
-  nome: string
-  email: string
-  telefone: string
-  cpf: string
-  vinculo: 'ativo' | 'afastado' | 'desligado'
-  data_contratacao: string
-}
-
-const mockMotoristas: Motorista[] = [
-  { id: '1', nome: 'Carlos Silva', email: 'carlos@transportadora.com', telefone: '(11) 98888-1111', cpf: '111.222.333-44', vinculo: 'ativo', data_contratacao: '10/01/2024' },
-  { id: '2', nome: 'Ana Oliveira', email: 'ana@transportadora.com', telefone: '(11) 98888-2222', cpf: '222.333.444-55', vinculo: 'ativo', data_contratacao: '15/03/2024' },
-  { id: '3', nome: 'Pedro Santos', email: 'pedro@transportadora.com', telefone: '(11) 98888-3333', cpf: '333.444.555-66', vinculo: 'afastado', data_contratacao: '20/06/2023' },
-  { id: '4', nome: 'Maria Souza', email: 'maria@transportadora.com', telefone: '(11) 98888-4444', cpf: '444.555.666-77', vinculo: 'ativo', data_contratacao: '02/02/2024' },
-]
+import { fetchMotoristas, createMotorista, updateMotorista, deleteMotorista, type MotoristaDB } from '@/lib/supabase/queries'
+import { toast } from 'sonner'
 
 const vinculoVariante: Record<string, 'confirmado' | 'suspeito' | 'pendente' | 'rejeitado'> = {
   ativo: 'confirmado',
@@ -39,18 +25,27 @@ const vinculoVariante: Record<string, 'confirmado' | 'suspeito' | 'pendente' | '
   desligado: 'rejeitado',
 }
 
-const vinculoLabel: Record<string, string> = {
-  ativo: 'Ativo',
-  afastado: 'Afastado',
-  desligado: 'Desligado',
-}
-
-function MotoristaForm({ motorista, onClose }: { motorista?: Motorista; onClose: () => void }) {
+function MotoristaForm({ motorista, onClose, onSave }: {
+  motorista?: MotoristaDB
+  onClose: () => void
+  onSave: (data: Partial<MotoristaDB>) => Promise<void>
+}) {
   const [nome, setNome] = useState(motorista?.nome ?? '')
   const [email, setEmail] = useState(motorista?.email ?? '')
   const [telefone, setTelefone] = useState(motorista?.telefone ?? '')
   const [cpf, setCpf] = useState(motorista?.cpf ?? '')
   const [vinculo, setVinculo] = useState(motorista?.vinculo ?? 'ativo')
+  const [saving, setSaving] = useState(false)
+
+  async function handleSubmit() {
+    if (!nome.trim()) { toast.error('Nome é obrigatório'); return }
+    setSaving(true)
+    try {
+      await onSave({ nome: nome.trim(), email: email.trim() || null, telefone: telefone.trim() || null, cpf: cpf.trim() || null, vinculo })
+      onClose()
+    } catch { toast.error('Erro ao salvar motorista') }
+    finally { setSaving(false) }
+  }
 
   return (
     <div className="space-y-4">
@@ -73,7 +68,7 @@ function MotoristaForm({ motorista, onClose }: { motorista?: Motorista; onClose:
         </div>
         <div className="space-y-2">
           <Label>Vínculo</Label>
-          <Select value={vinculo} onValueChange={(v: 'ativo' | 'afastado' | 'desligado') => setVinculo(v)}>
+          <Select value={vinculo} onValueChange={setVinculo}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="ativo">Ativo</SelectItem>
@@ -85,22 +80,56 @@ function MotoristaForm({ motorista, onClose }: { motorista?: Motorista; onClose:
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={onClose}>Cancelar</Button>
-        <Button onClick={onClose}>Salvar</Button>
+        <Button onClick={handleSubmit} disabled={saving}>
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Salvar
+        </Button>
       </DialogFooter>
     </div>
   )
 }
 
 export function Motoristas() {
+  const { user } = useAuth()
+  const [motoristas, setMotoristas] = useState<MotoristaDB[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [formAberto, setFormAberto] = useState(false)
-  const [editMotorista, setEditMotorista] = useState<Motorista | undefined>()
+  const [editMotorista, setEditMotorista] = useState<MotoristaDB | undefined>()
 
-  const filtrados = mockMotoristas.filter((m) =>
+  useEffect(() => {
+    if (!user) return
+    setLoading(true)
+    fetchMotoristas(user.id).then(setMotoristas).catch(() => toast.error('Erro ao carregar motoristas'))
+    .finally(() => setLoading(false))
+  }, [user])
+
+  async function handleSave(data: Partial<MotoristaDB>) {
+    if (!user) return
+    if (editMotorista) {
+      const updated = await updateMotorista(editMotorista.id, data)
+      setMotoristas((prev) => prev.map((m) => m.id === editMotorista.id ? updated : m))
+      toast.success('Motorista atualizado')
+    } else {
+      const created = await createMotorista(user.id, data)
+      setMotoristas((prev) => [created, ...prev])
+      toast.success('Motorista cadastrado')
+    }
+  }
+
+  async function handleDelete(id: string) {
+    await deleteMotorista(id)
+    setMotoristas((prev) => prev.filter((m) => m.id !== id))
+    toast.success('Motorista removido')
+  }
+
+  const filtrados = motoristas.filter((m) =>
     m.nome.toLowerCase().includes(search.toLowerCase()) ||
-    m.email.toLowerCase().includes(search.toLowerCase()) ||
-    m.cpf.includes(search)
+    (m.email ?? '').toLowerCase().includes(search.toLowerCase()) ||
+    (m.cpf ?? '').includes(search)
   )
+
+  if (loading) return <LoadingSkeleton />
 
   return (
     <div className="space-y-6">
@@ -109,35 +138,25 @@ export function Motoristas() {
         <Dialog open={formAberto} onOpenChange={setFormAberto}>
           <DialogTrigger asChild>
             <Button onClick={() => { setEditMotorista(undefined); setFormAberto(true) }}>
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Motorista
+              <Plus className="mr-2 h-4 w-4" /> Novo Motorista
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>{editMotorista ? 'Editar Motorista' : 'Novo Motorista'}</DialogTitle>
             </DialogHeader>
-            <MotoristaForm motorista={editMotorista} onClose={() => setFormAberto(false)} />
+            <MotoristaForm motorista={editMotorista} onClose={() => setFormAberto(false)} onSave={handleSave} />
           </DialogContent>
         </Dialog>
       </div>
 
       <div className="relative max-w-xs">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Buscar motoristas..."
-          className="pl-9"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <Input placeholder="Buscar motoristas..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
       {filtrados.length === 0 ? (
-        <EmptyState
-          icon={<UserCheck className="h-16 w-16" />}
-          title="Nenhum motorista encontrado"
-          description="Cadastre motoristas para começar a acompanhar."
-        />
+        <EmptyState icon={<UserCheck className="h-16 w-16" />} title="Nenhum motorista encontrado" description="Cadastre motoristas para começar a acompanhar." />
       ) : (
         <div className="rounded-lg border">
           <Table>
@@ -157,14 +176,14 @@ export function Motoristas() {
                   <TableCell className="hidden md:table-cell text-muted-foreground">{m.email}</TableCell>
                   <TableCell className="hidden sm:table-cell text-muted-foreground">{m.telefone}</TableCell>
                   <TableCell>
-                    <BadgeStatus status={vinculoVariante[m.vinculo]} />
+                    <BadgeStatus status={vinculoVariante[m.vinculo] ?? 'pendente'} />
                   </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost" size="icon"
-                      onClick={() => { setEditMotorista(m); setFormAberto(true) }}
-                    >
+                  <TableCell className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => { setEditMotorista(m); setFormAberto(true) }}>
                       <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(m.id)}>
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>

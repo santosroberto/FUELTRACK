@@ -29,6 +29,10 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   )
 }
 
+export function LoadingSkeleton() {
+  return <TableSkeleton />
+}
+
 export function ChartSkeleton() {
   return (
     <div className="rounded-lg border bg-card p-4 md:p-6">
