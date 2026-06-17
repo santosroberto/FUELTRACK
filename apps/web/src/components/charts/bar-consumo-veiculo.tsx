@@ -24,8 +24,8 @@ export function BarConsumoVeiculo({ data }: BarConsumoVeiculoProps) {
 
   return (
     <ChartContainer
-      title="Consumo por VeÃ­culo"
-      description="km/L mÃ©dio no perÃ­odo"
+      title="Consumo por Veículo"
+      description="km/L médio no período"
     >
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={data} layout="vertical">

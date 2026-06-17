@@ -23,7 +23,7 @@ export function AreaGasto({ data }: AreaGastoProps) {
   const height = CHART_HEIGHT
 
   return (
-    <ChartContainer title="Gasto x Tempo" description="EvoluÃ§Ã£o do gasto semanal">
+    <ChartContainer title="Gasto x Tempo" description="Evolução do gasto semanal">
       <ResponsiveContainer width="100%" height={height}>
         <AreaChart data={data}>
           <defs>

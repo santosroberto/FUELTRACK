@@ -19,7 +19,7 @@ interface PieGastoCategoriaProps {
 
 export function PieGastoCategoria({ data }: PieGastoCategoriaProps) {
   return (
-    <ChartContainer title="Gasto por Categoria" description="DistribuiÃ§Ã£o dos gastos">
+    <ChartContainer title="Gasto por Categoria" description="Distribuição dos gastos">
       <ResponsiveContainer width="100%" height={280}>
         <PieChart>
           <Pie

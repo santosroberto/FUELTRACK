@@ -22,7 +22,7 @@ interface LineConsumoHistoricoProps {
 export function LineConsumoHistorico({ data }: LineConsumoHistoricoProps) {
   return (
     <ChartContainer
-      title="Consumo HistÃ³rico"
+      title="Consumo Histórico"
       description="km/L por abastecimento"
     >
       <ResponsiveContainer width="100%" height={250}>
